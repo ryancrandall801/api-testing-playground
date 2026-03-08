@@ -1,12 +1,13 @@
-from fastapi import FastAPI
+import json
+
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Any, Optional
 from sqlmodel import Session, select
 
 from executor import run_test_case
-
 from db import create_db_and_tables, engine
-from models import TestSuite
+from models import TestSuite, TestCase
 
 app = FastAPI()
 
@@ -20,7 +21,7 @@ class Assertion(BaseModel):
     expected: Any
 
 
-class TestCase(BaseModel):
+class RunTestRequest(BaseModel):
     method: str
     url: str
     headers: dict[str, str] | None = None
@@ -34,8 +35,19 @@ class TestSuiteCreate(BaseModel):
     description: Optional[str] = None
 
 
+class TestCaseCreate(BaseModel):
+    suite_id: int
+    name: str
+    method: str
+    url: str
+    headers: dict[str, str] | None = None
+    params: dict[str, str] | None = None
+    json_body: dict[str, Any] | None = None
+    assertions: list[dict[str, Any]]
+
+
 @app.post("/run-test")
-def run_test(test_case: TestCase):
+def run_test(test_case: RunTestRequest):
     result = run_test_case(test_case.model_dump())
     return result
 
@@ -51,8 +63,49 @@ def create_suite(suite: TestSuiteCreate):
 
         return db_suite
 
+
 @app.get("/suites")
 def get_suites():
     with Session(engine) as session:
         suites = session.exec(select(TestSuite)).all()
         return suites
+
+
+@app.post("/cases")
+def create_test_case(test_case: TestCaseCreate):
+    with Session(engine) as session:
+        suite = session.get(TestSuite, test_case.suite_id)
+
+        if not suite:
+            raise HTTPException(status_code=404, detail="Test suite not found")
+
+        db_case = TestCase(
+            suite_id=test_case.suite_id,
+            name=test_case.name,
+            method=test_case.method,
+            url=test_case.url,
+            headers_json=json.dumps(test_case.headers) if test_case.headers else None,
+            params_json=json.dumps(test_case.params) if test_case.params else None,
+            json_body=json.dumps(test_case.json_body) if test_case.json_body else None,
+            assertions_json=json.dumps(test_case.assertions),
+        )
+
+        session.add(db_case)
+        session.commit()
+        session.refresh(db_case)
+
+        return db_case
+
+
+@app.get("/suites/{suite_id}/cases")
+def get_test_cases_for_suite(suite_id: int):
+    with Session(engine) as session:
+        suite = session.get(TestSuite, suite_id)
+
+        if not suite:
+            raise HTTPException(status_code=404, detail="Test suite not found")
+
+        statement = select(TestCase).where(TestCase.suite_id == suite_id)
+        cases = session.exec(statement).all()
+
+        return cases
