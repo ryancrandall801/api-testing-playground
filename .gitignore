@@ -29,3 +29,4 @@ htmlcov/
 
 # Database files (if using SQLite locally)
 *.sqlite3
+*.db
