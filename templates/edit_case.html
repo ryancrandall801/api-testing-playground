@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Test Case</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Test Case</h1>
+
+        <a class="back-link" href="/ui/suites/{{ test_case.suite_id }}">← Back to Suite</a>
+
+        <div class="card">
+            <form action="/ui/cases/{{ test_case.id }}/edit" method="post" class="form-stack">
+                <label for="name">Test Name</label>
+                <input id="name" name="name" value="{{ test_case.name }}" required />
+
+                <label for="method">HTTP Method</label>
+                <select id="method" name="method">
+                    <option value="GET" {% if test_case.method == "GET" %}selected{% endif %}>GET</option>
+                    <option value="POST" {% if test_case.method == "POST" %}selected{% endif %}>POST</option>
+                    <option value="PUT" {% if test_case.method == "PUT" %}selected{% endif %}>PUT</option>
+                    <option value="PATCH" {% if test_case.method == "PATCH" %}selected{% endif %}>PATCH</option>
+                    <option value="DELETE" {% if test_case.method == "DELETE" %}selected{% endif %}>DELETE</option>
+                    <option value="HEAD" {% if test_case.method == "HEAD" %}selected{% endif %}>HEAD</option>
+                    <option value="OPTIONS" {% if test_case.method == "OPTIONS" %}selected{% endif %}>OPTIONS</option>
+                </select>
+
+                <label for="url">URL</label>
+                <input id="url" name="url" value="{{ test_case.url }}" required />
+                <p class="meta">Enter a full URL, including http:// or https://</p>
+
+                <h2>Assertion</h2>
+
+                <label for="assertion_type">Assertion Type</label>
+                <select id="assertion_type" name="assertion_type">
+                    <option value="status_code_equals" {% if assertion_type == "status_code_equals" %}selected{% endif %}>Status Code Equals</option>
+                    <option value="json_path_exists" {% if assertion_type == "json_path_exists" %}selected{% endif %}>JSON Path Exists</option>
+                    <option value="response_time_lt" {% if assertion_type == "response_time_lt" %}selected{% endif %}>Response Time Less Than</option>
+                </select>
+
+                <label for="assertion_expected">Expected Value</label>
+                <input id="assertion_expected" name="assertion_expected" value="{{ assertion_expected }}" required />
+
+                <div class="actions">
+                    <button type="submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

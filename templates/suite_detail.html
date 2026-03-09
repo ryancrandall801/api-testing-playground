@@ -44,6 +44,10 @@
                             View Run History
                         </a>
 
+                        <a class="secondary-button" href="/ui/cases/{{ case.id }}/edit">
+                            Edit
+                        </a>
+
                         <form action="/ui/cases/{{ case.id }}/delete" method="post">
                             <button type="submit" class="danger-button">Delete</button>
                         </form>

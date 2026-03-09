@@ -512,3 +512,66 @@ def delete_test_case_ui(case_id: int = Path(gt=0)):
         session.commit()
 
         return RedirectResponse(url=f"/ui/suites/{suite_id}", status_code=303)
+
+
+@app.get("/ui/cases/{case_id}/edit", response_class=HTMLResponse)
+def edit_case_form(request: Request, case_id: int = Path(gt=0)):
+    with Session(engine) as session:
+        db_case = session.get(TestCase, case_id)
+
+        if not db_case:
+            raise HTTPException(status_code=404, detail="Test case not found")
+
+        assertions = json.loads(db_case.assertions_json) if db_case.assertions_json else []
+        first_assertion = assertions[0] if assertions else {"type": "", "expected": ""}
+
+        return templates.TemplateResponse(
+            "edit_case.html",
+            {
+                "request": request,
+                "test_case": db_case,
+                "assertion_type": first_assertion.get("type", ""),
+                "assertion_expected": first_assertion.get("expected", ""),
+            },
+        )
+
+
+@app.post("/ui/cases/{case_id}/edit")
+def edit_case_ui(
+    case_id: int = Path(gt=0),
+    name: str = Form(...),
+    method: str = Form(...),
+    url: str = Form(...),
+    assertion_type: str = Form(...),
+    assertion_expected: str = Form(...),
+):
+    url = url.strip()
+
+    if not url.startswith(("http://", "https://")):
+        raise HTTPException(
+            status_code=400,
+            detail="URL must start with http:// or https://"
+        )
+
+    assertions = [
+        {
+            "type": assertion_type,
+            "expected": int(assertion_expected) if assertion_expected.isdigit() else assertion_expected,
+        }
+    ]
+
+    with Session(engine) as session:
+        db_case = session.get(TestCase, case_id)
+
+        if not db_case:
+            raise HTTPException(status_code=404, detail="Test case not found")
+
+        db_case.name = name
+        db_case.method = method
+        db_case.url = url
+        db_case.assertions_json = json.dumps(assertions)
+
+        session.add(db_case)
+        session.commit()
+
+        return RedirectResponse(url=f"/ui/suites/{db_case.suite_id}", status_code=303)
