@@ -1,13 +1,15 @@
 import json
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Path
 from pydantic import BaseModel
-from typing import Any, Optional
+from typing import Any, Optional, Literal
 from sqlmodel import Session, select
 
 from executor import run_test_case
 from db import create_db_and_tables, engine
 from models import TestSuite, TestCase
+
+HttpMethod = Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
 
 app = FastAPI()
 
@@ -22,7 +24,7 @@ class Assertion(BaseModel):
 
 
 class RunTestRequest(BaseModel):
-    method: str
+    method: HttpMethod
     url: str
     headers: dict[str, str] | None = None
     params: dict[str, str] | None = None
@@ -38,7 +40,7 @@ class TestSuiteCreate(BaseModel):
 class TestCaseCreate(BaseModel):
     suite_id: int
     name: str
-    method: str
+    method: HttpMethod
     url: str
     headers: dict[str, str] | None = None
     params: dict[str, str] | None = None
@@ -120,7 +122,7 @@ def run_saved_test(case_id: int):
 
 
 @app.get("/suites/{suite_id}/cases")
-def get_test_cases_for_suite(suite_id: int):
+def get_test_cases_for_suite(suite_id: int = Path(gt=0)):
     with Session(engine) as session:
         suite = session.get(TestSuite, suite_id)
 
