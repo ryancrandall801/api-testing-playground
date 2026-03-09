@@ -135,3 +135,51 @@ def get_test_cases_for_suite(suite_id: int = Path(gt=0)):
         cases = session.exec(statement).all()
 
         return cases
+
+
+@app.post("/suites/{suite_id}/run")
+def run_test_suite(suite_id: int = Path(gt=0)):
+    with Session(engine) as session:
+        suite = session.get(TestSuite, suite_id)
+
+        if not suite:
+            raise HTTPException(status_code=404, detail="Test suite not found")
+
+        statement = select(TestCase).where(TestCase.suite_id == suite_id)
+        db_cases = session.exec(statement).all()
+
+        if not db_cases:
+            raise HTTPException(status_code=404, detail="No test cases found for this suite")
+
+        results = []
+
+        for db_case in db_cases:
+            test_case_dict = {
+                "method": db_case.method,
+                "url": db_case.url,
+                "headers": json.loads(db_case.headers_json) if db_case.headers_json else None,
+                "params": json.loads(db_case.params_json) if db_case.params_json else None,
+                "json_body": json.loads(db_case.json_body) if db_case.json_body else None,
+                "assertions": json.loads(db_case.assertions_json),
+            }
+
+            run_result = run_test_case(test_case_dict)
+
+            results.append({
+                "case_id": db_case.id,
+                "case_name": db_case.name,
+                "result": run_result,
+            })
+
+        total_tests = len(results)
+        passed = sum(1 for r in results if r["result"]["status"] == "passed")
+        failed = total_tests - passed
+
+        return {
+            "suite_id": suite.id,
+            "suite_name": suite.name,
+            "total_tests": total_tests,
+            "passed": passed,
+            "failed": failed,
+            "results": results,
+        }
