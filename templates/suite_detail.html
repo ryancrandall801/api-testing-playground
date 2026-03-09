@@ -43,6 +43,10 @@
                         <a class="secondary-button" href="/ui/cases/{{ case.id }}/runs">
                             View Run History
                         </a>
+
+                        <form action="/ui/cases/{{ case.id }}/delete" method="post">
+                            <button type="submit" class="danger-button">Delete</button>
+                        </form>
                     </div>
                 </div>
             {% else %}

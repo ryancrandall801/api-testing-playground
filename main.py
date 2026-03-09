@@ -492,3 +492,23 @@ def test_run_detail(request: Request, run_id: int = Path(gt=0)):
         )
 
 
+@app.post("/ui/cases/{case_id}/delete")
+def delete_test_case_ui(case_id: int = Path(gt=0)):
+    with Session(engine) as session:
+        db_case = session.get(TestCase, case_id)
+
+        if not db_case:
+            raise HTTPException(status_code=404, detail="Test case not found")
+
+        suite_id = db_case.suite_id
+
+        statement = select(TestRun).where(TestRun.test_case_id == case_id)
+        runs = session.exec(statement).all()
+
+        for run in runs:
+            session.delete(run)
+
+        session.delete(db_case)
+        session.commit()
+
+        return RedirectResponse(url=f"/ui/suites/{suite_id}", status_code=303)

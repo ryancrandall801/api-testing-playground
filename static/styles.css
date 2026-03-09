@@ -119,3 +119,8 @@ label {
     font-weight: 600;
     margin-top: 4px;
 }
+
+.danger-button {
+    background: crimson;
+    color: white;
+}
