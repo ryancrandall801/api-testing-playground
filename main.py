@@ -181,9 +181,23 @@ def run_test_suite(suite_id: int = Path(gt=0)):
 
             run_result = run_test_case(test_case_dict)
 
+            test_run = TestRun(
+                test_case_id=db_case.id,
+                status=run_result["status"],
+                response_status=run_result["response_status"],
+                response_time_ms=run_result["response_time_ms"],
+                response_body=run_result.get("response_body"),
+                assertion_results_json=json.dumps(run_result["assertion_results"]),
+            )
+
+            session.add(test_run)
+            session.commit()
+            session.refresh(test_run)
+
             results.append({
                 "case_id": db_case.id,
                 "case_name": db_case.name,
+                "test_run_id": test_run.id,
                 "result": run_result,
             })
 
