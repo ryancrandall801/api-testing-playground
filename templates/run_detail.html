@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Test Run Detail</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <main class="container">
+        <a class="back-link" href="/ui/cases/{{ test_case.id }}/runs">← Back to run history</a>
+
+        <h1>Run #{{ test_run.id }}</h1>
+        <p class="subtitle">
+            <strong>{{ test_case.name }}</strong><br />
+            {{ test_case.method }} {{ test_case.url }}
+        </p>
+
+        <div class="card">
+            <h2>
+                Status:
+                <span class="{{ 'pass' if test_run.status == 'passed' else 'fail' }}">
+                    {{ test_run.status }}
+                </span>
+            </h2>
+            <p>Response status: {{ test_run.response_status }}</p>
+            <p>Response time: {{ test_run.response_time_ms }} ms</p>
+            <p class="meta">Created: {{ test_run.created_at }}</p>
+        </div>
+
+        <div class="card">
+            <h2>Assertion Results</h2>
+            {% for assertion in assertion_results %}
+                <div class="assertion-row">
+                    <p>
+                        <strong>{{ assertion.type }}</strong>:
+                        <span class="{{ 'pass' if assertion.passed else 'fail' }}">
+                            {{ 'passed' if assertion.passed else 'failed' }}
+                        </span>
+                    </p>
+                    <p>{{ assertion.message }}</p>
+                    {% if assertion.actual is not none %}
+                        <p><strong>Actual:</strong> {{ assertion.actual }}</p>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p>No assertion results found.</p>
+            {% endfor %}
+        </div>
+
+        <div class="card">
+            <h2>Response Body</h2>
+            <pre>{{ test_run.response_body or "No response body recorded." }}</pre>
+        </div>
+    </main>
+</body>
+</html>

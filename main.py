@@ -390,3 +390,26 @@ def run_test_suite_ui(request: Request, suite_id: int = Path(gt=0)):
                 "failed": failed,
             },
         )
+
+
+@app.get("/ui/runs/{run_id}", response_class=HTMLResponse)
+def test_run_detail(request: Request, run_id: int = Path(gt=0)):
+    with Session(engine) as session:
+        test_run = session.get(TestRun, run_id)
+
+        if not test_run:
+            raise HTTPException(status_code=404, detail="Test run not found")
+
+        test_case = session.get(TestCase, test_run.test_case_id)
+
+        assertion_results = json.loads(test_run.assertion_results_json)
+
+        return templates.TemplateResponse(
+            "run_detail.html",
+            {
+                "request": request,
+                "test_run": test_run,
+                "test_case": test_case,
+                "assertion_results": assertion_results,
+            },
+        )

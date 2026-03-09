@@ -25,6 +25,12 @@
                     <p>Response status: {{ run.response_status }}</p>
                     <p>Response time: {{ run.response_time_ms }} ms</p>
                     <p class="meta">Created: {{ run.created_at }}</p>
+
+                    <div class="button-row">
+                        <a class="secondary-button" href="/ui/runs/{{ run.id }}">
+                            View Details
+                        </a>
+                    </div>
                 </div>
             {% else %}
                 <div class="card">
