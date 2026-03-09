@@ -97,3 +97,25 @@ pre {
     padding: 10px 0;
     border-top: 1px solid #eee;
 }
+
+.form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d7dbe3;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+label {
+    font-weight: 600;
+    margin-top: 4px;
+}

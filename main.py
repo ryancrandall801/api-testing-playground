@@ -1,7 +1,7 @@
 import json
 
-from fastapi import FastAPI, HTTPException, Path, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, HTTPException, Path, Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -257,6 +257,27 @@ def home(request: Request):
         )
 
 
+@app.get("/ui/suites/create", response_class=HTMLResponse)
+def new_suite_form(request: Request):
+    return templates.TemplateResponse(
+        "new_suite.html",
+        {"request": request},
+    )
+
+
+@app.post("/ui/suites/create")
+def create_suite_ui(name: str = Form(...), description: str = Form("")):
+    with Session(engine) as session:
+        db_suite = TestSuite(
+            name=name,
+            description=description or None,
+        )
+        session.add(db_suite)
+        session.commit()
+
+        return RedirectResponse(url="/", status_code=303)
+
+
 @app.get("/ui/suites/{suite_id}", response_class=HTMLResponse)
 def suite_detail(request: Request, suite_id: int = Path(gt=0)):
     with Session(engine) as session:
@@ -413,3 +434,5 @@ def test_run_detail(request: Request, run_id: int = Path(gt=0)):
                 "assertion_results": assertion_results,
             },
         )
+
+

@@ -11,6 +11,10 @@
         <h1>API Testing Playground</h1>
         <p class="subtitle">Saved test suites</p>
 
+        <div class="actions">
+            <a class="secondary-button" href="/ui/suites/create">Create Suite</a>
+        </div>
+
         <div class="card-list">
             {% for suite in suites %}
                 <a class="card" href="/ui/suites/{{ suite.id }}">

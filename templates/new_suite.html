@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create Suite</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <main class="container">
+        <a class="back-link" href="/">← Back to suites</a>
+
+        <h1>Create Test Suite</h1>
+        <p class="subtitle">Add a new suite to organize your API test cases.</p>
+
+        <div class="card">
+            <form action="/ui/suites/create" method="post" class="form-stack">
+                <label for="name">Suite Name</label>
+                <input id="name" name="name" type="text" required />
+
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4"></textarea>
+
+                <div class="actions">
+                    <button type="submit">Create Suite</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
