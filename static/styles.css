@@ -1,0 +1,85 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f6f7fb;
+    color: #222;
+    margin: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px;
+}
+
+h1 {
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 24px;
+}
+
+.card-list {
+    display: grid;
+    gap: 16px;
+}
+
+.card {
+    display: block;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+.meta {
+    color: #777;
+    font-size: 14px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #444;
+    text-decoration: none;
+}
+
+.actions,
+.button-row {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+button,
+.secondary-button {
+    border: none;
+    background: #222;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.secondary-button {
+    background: #555;
+}
+
+.pass {
+    color: green;
+    font-weight: bold;
+}
+
+.fail {
+    color: crimson;
+    font-weight: bold;
+}
