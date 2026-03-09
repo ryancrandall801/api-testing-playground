@@ -97,6 +97,28 @@ def create_test_case(test_case: TestCaseCreate):
         return db_case
 
 
+@app.post("/cases/{case_id}/run")
+def run_saved_test(case_id: int):
+    with Session(engine) as session:
+        db_case = session.get(TestCase, case_id)
+
+        if not db_case:
+            raise HTTPException(status_code=404, detail="Test case not found")
+
+        test_case_dict = {
+            "method": db_case.method,
+            "url": db_case.url,
+            "headers": json.loads(db_case.headers_json) if db_case.headers_json else None,
+            "params": json.loads(db_case.params_json) if db_case.params_json else None,
+            "json_body": json.loads(db_case.json_body) if db_case.json_body else None,
+            "assertions": json.loads(db_case.assertions_json),
+        }
+
+        result = run_test_case(test_case_dict)
+
+        return result
+
+
 @app.get("/suites/{suite_id}/cases")
 def get_test_cases_for_suite(suite_id: int):
     with Session(engine) as session:
