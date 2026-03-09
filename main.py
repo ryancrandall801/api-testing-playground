@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 
 from executor import run_test_case
 from db import create_db_and_tables, engine
-from models import TestSuite, TestCase
+from models import TestSuite, TestCase, TestRun
 from seed import seed_demo_data
 
 HttpMethod = Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
@@ -102,7 +102,7 @@ def create_test_case(test_case: TestCaseCreate):
 
 
 @app.post("/cases/{case_id}/run")
-def run_saved_test(case_id: int):
+def run_saved_test(case_id: int = Path(gt=0)):
     with Session(engine) as session:
         db_case = session.get(TestCase, case_id)
 
@@ -120,7 +120,23 @@ def run_saved_test(case_id: int):
 
         result = run_test_case(test_case_dict)
 
-        return result
+        test_run = TestRun(
+            test_case_id=db_case.id,
+            status=result["status"],
+            response_status=result["response_status"],
+            response_time_ms=result["response_time_ms"],
+            response_body=result.get("response_body"),
+            assertion_results_json=json.dumps(result["assertion_results"]),
+        )
+
+        session.add(test_run)
+        session.commit()
+        session.refresh(test_run)
+
+        return {
+            "test_run_id": test_run.id,
+            "result": result,
+        }
 
 
 @app.get("/suites/{suite_id}/cases")
@@ -183,3 +199,32 @@ def run_test_suite(suite_id: int = Path(gt=0)):
             "failed": failed,
             "results": results,
         }
+
+
+@app.get("/cases/{case_id}/runs")
+def get_test_run_history(case_id: int = Path(gt=0)):
+    with Session(engine) as session:
+        db_case = session.get(TestCase, case_id)
+
+        if not db_case:
+            raise HTTPException(status_code=404, detail="Test case not found")
+
+        statement = (
+            select(TestRun)
+            .where(TestRun.test_case_id == case_id)
+            .order_by(TestRun.created_at.desc())
+        )
+        runs = session.exec(statement).all()
+
+        return runs
+
+
+@app.get("/runs/{run_id}")
+def get_test_run(run_id: int = Path(gt=0)):
+    with Session(engine) as session:
+        test_run = session.get(TestRun, run_id)
+
+        if not test_run:
+            raise HTTPException(status_code=404, detail="Test run not found")
+
+        return test_run

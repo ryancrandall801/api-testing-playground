@@ -22,3 +22,14 @@ class TestCase(SQLModel, table=True):
     json_body: str | None = None
     assertions_json: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class TestRun(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    test_case_id: int = Field(foreign_key="testcase.id")
+    status: str
+    response_status: int
+    response_time_ms: int
+    response_body: str | None = None
+    assertion_results_json: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
