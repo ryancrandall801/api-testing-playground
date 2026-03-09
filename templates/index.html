@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API Testing Playground</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <main class="container">
+        <h1>API Testing Playground</h1>
+        <p class="subtitle">Saved test suites</p>
+
+        <div class="card-list">
+            {% for suite in suites %}
+                <a class="card" href="/ui/suites/{{ suite.id }}">
+                    <h2>{{ suite.name }}</h2>
+                    <p>{{ suite.description or "No description" }}</p>
+                    <span class="meta">Suite ID: {{ suite.id }}</span>
+                </a>
+            {% else %}
+                <div class="card">
+                    <h2>No suites yet</h2>
+                    <p>Create one in Swagger or seed demo data.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

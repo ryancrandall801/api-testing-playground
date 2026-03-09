@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Test Case Result</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <main class="container">
+        <a class="back-link" href="/ui/suites/{{ test_case.suite_id }}">← Back to suite</a>
+
+        <h1>{{ test_case.name }}</h1>
+        <p class="subtitle"><strong>{{ test_case.method }}</strong> {{ test_case.url }}</p>
+
+        <div class="card">
+            <h2>
+                Result:
+                <span class="{{ 'pass' if result.status == 'passed' else 'fail' }}">
+                    {{ result.status }}
+                </span>
+            </h2>
+            <p>Response status: {{ result.response_status }}</p>
+            <p>Response time: {{ result.response_time_ms }} ms</p>
+            <p>Saved test run ID: {{ test_run.id }}</p>
+        </div>
+
+        <div class="card">
+            <h2>Assertion Results</h2>
+            {% for assertion in result.assertion_results %}
+                <div class="assertion-row">
+                    <p>
+                        <strong>{{ assertion.type }}</strong>:
+                        <span class="{{ 'pass' if assertion.passed else 'fail' }}">
+                            {{ 'passed' if assertion.passed else 'failed' }}
+                        </span>
+                    </p>
+                    <p>{{ assertion.message }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="card">
+            <h2>Response Body</h2>
+            <pre>{{ result.response_body }}</pre>
+        </div>
+    </main>
+</body>
+</html>

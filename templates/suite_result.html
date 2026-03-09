@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Suite Result</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <main class="container">
+        <a class="back-link" href="/ui/suites/{{ suite.id }}">← Back to suite</a>
+
+        <h1>{{ suite.name }}</h1>
+        <p class="subtitle">Suite execution results</p>
+
+        <div class="card">
+            <h2>Summary</h2>
+            <p>Total tests: {{ total_tests }}</p>
+            <p><span class="pass">Passed: {{ passed }}</span></p>
+            <p><span class="fail">Failed: {{ failed }}</span></p>
+        </div>
+
+        <div class="card-list">
+            {% for item in results %}
+                <div class="card">
+                    <h2>{{ item.case.name }}</h2>
+                    <p><strong>{{ item.case.method }}</strong> {{ item.case.url }}</p>
+                    <p>
+                        Result:
+                        <span class="{{ 'pass' if item.result.status == 'passed' else 'fail' }}">
+                            {{ item.result.status }}
+                        </span>
+                    </p>
+                    <p>Response status: {{ item.result.response_status }}</p>
+                    <p>Response time: {{ item.result.response_time_ms }} ms</p>
+                    <p>Saved test run ID: {{ item.test_run.id }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

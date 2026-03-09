@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ suite.name }}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <main class="container">
+        <a class="back-link" href="/">← Back to suites</a>
+
+        <h1>{{ suite.name }}</h1>
+        <p class="subtitle">{{ suite.description or "No description" }}</p>
+
+        <div class="actions">
+            <form action="/ui/suites/{{ suite.id }}/run" method="post">
+                <button type="submit">Run Full Suite</button>
+            </form>
+        </div>
+
+        <div class="card-list">
+            {% for case in cases %}
+                <div class="card">
+                    <h2>{{ case.name }}</h2>
+                    <p><strong>{{ case.method }}</strong> {{ case.url }}</p>
+
+                    <div class="button-row">
+                        <form action="/ui/cases/{{ case.id }}/run" method="post">
+                            <button type="submit">Run Test Case</button>
+                        </form>
+
+                        <a class="secondary-button" href="/ui/cases/{{ case.id }}/runs">
+                            View Run History
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <h2>No test cases</h2>
+                    <p>Add one through Swagger for now.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>
