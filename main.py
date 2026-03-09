@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 from executor import run_test_case
 from db import create_db_and_tables, engine
 from models import TestSuite, TestCase
+from seed import seed_demo_data
 
 HttpMethod = Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
 
@@ -16,6 +17,7 @@ app = FastAPI()
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+    seed_demo_data()
 
 
 class Assertion(BaseModel):
