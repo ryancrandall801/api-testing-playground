@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Test Case</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+<div class="container">
+
+<h1>Create Test Case</h1>
+
+<a href="/ui/suites/{{ suite.id }}">← Back to Suite</a>
+
+<form method="post" class="form-stack">
+
+<label>Test Name</label>
+<input name="name" required>
+
+<label>HTTP Method</label>
+<select name="method">
+    <option>GET</option>
+    <option>POST</option>
+    <option>PUT</option>
+    <option>PATCH</option>
+    <option>DELETE</option>
+</select>
+
+<label>URL</label>
+<input name="url" required>
+
+<button type="submit">Create Test Case</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

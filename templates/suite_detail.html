@@ -19,6 +19,16 @@
             </form>
         </div>
 
+        <div class="actions">
+            <form action="/ui/suites/{{ suite.id }}/run" method="post">
+                <button type="submit">Run Full Suite</button>
+            </form>
+
+            <a class="secondary-button" href="/ui/suites/{{ suite.id }}/cases/create">
+                Create Test Case
+            </a>
+        </div>
+
         <div class="card-list">
             {% for case in cases %}
                 <div class="card">

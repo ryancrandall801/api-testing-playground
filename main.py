@@ -118,6 +118,51 @@ def create_test_case(test_case: TestCaseCreate):
         return db_case
 
 
+@app.get("/ui/suites/{suite_id}/cases/create", response_class=HTMLResponse)
+def new_case_form(request: Request, suite_id: int = Path(gt=0)):
+    with Session(engine) as session:
+        suite = session.get(TestSuite, suite_id)
+
+        if not suite:
+            raise HTTPException(status_code=404, detail="Suite not found")
+
+        return templates.TemplateResponse(
+            "new_case.html",
+            {
+                "request": request,
+                "suite": suite,
+            },
+        )
+
+
+@app.post("/ui/suites/{suite_id}/cases/create")
+def create_case_ui(
+    suite_id: int,
+    name: str = Form(...),
+    method: str = Form(...),
+    url: str = Form(...),
+):
+    with Session(engine) as session:
+
+        db_case = TestCase(
+            suite_id=suite_id,
+            name=name,
+            method=method,
+            url=url,
+            assertions_json=json.dumps([
+                {"type": "status_code_equals", "expected": 200}
+            ]),
+        )
+
+        session.add(db_case)
+        session.commit()
+
+        return RedirectResponse(
+            url=f"/ui/suites/{suite_id}",
+            status_code=303,
+        )
+
+
 @app.post("/cases/{case_id}/run")
 def run_saved_test(case_id: int = Path(gt=0)):
     with Session(engine) as session:
