@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Path, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 from typing import Any, Optional, Literal
 from sqlmodel import Session, select
 
@@ -49,7 +49,7 @@ class TestCaseCreate(BaseModel):
     suite_id: int
     name: str
     method: HttpMethod
-    url: str
+    url: HttpUrl
     headers: dict[str, str] | None = None
     params: dict[str, str] | None = None
     json_body: dict[str, Any] | None = None
@@ -104,7 +104,7 @@ def create_test_case(test_case: TestCaseCreate):
             suite_id=test_case.suite_id,
             name=test_case.name,
             method=test_case.method,
-            url=test_case.url,
+            url=str(test_case.url),  # convert HttpUrl → string
             headers_json=json.dumps(test_case.headers) if test_case.headers else None,
             params_json=json.dumps(test_case.params) if test_case.params else None,
             json_body=json.dumps(test_case.json_body) if test_case.json_body else None,
@@ -141,26 +141,37 @@ def create_case_ui(
     name: str = Form(...),
     method: str = Form(...),
     url: str = Form(...),
+    assertion_type: str = Form(...),
+    assertion_expected: str = Form(...)
 ):
-    with Session(engine) as session:
+    url = url.strip()
 
+    if not url.startswith(("http://", "https://")):
+        raise HTTPException(
+            status_code=400,
+            detail="URL must start with http:// or https://"
+        )
+
+    assertions = [
+        {
+            "type": assertion_type,
+            "expected": int(assertion_expected) if assertion_expected.isdigit() else assertion_expected,
+        }
+    ]
+
+    with Session(engine) as session:
         db_case = TestCase(
             suite_id=suite_id,
             name=name,
             method=method,
             url=url,
-            assertions_json=json.dumps([
-                {"type": "status_code_equals", "expected": 200}
-            ]),
+            assertions_json=json.dumps(assertions),
         )
 
         session.add(db_case)
         session.commit()
 
-        return RedirectResponse(
-            url=f"/ui/suites/{suite_id}",
-            status_code=303,
-        )
+        return RedirectResponse(url=f"/ui/suites/{suite_id}", status_code=303)
 
 
 @app.post("/cases/{case_id}/run")

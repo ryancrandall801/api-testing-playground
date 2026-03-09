@@ -29,6 +29,18 @@
 <label>URL</label>
 <input name="url" required>
 
+<h2>Assertions</h2>
+
+<label>Assertion Type</label>
+<select name="assertion_type">
+    <option value="status_code_equals">Status Code Equals</option>
+    <option value="json_path_exists">JSON Path Exists</option>
+    <option value="response_time_lt">Response Time Less Than</option>
+</select>
+
+<label>Expected Value</label>
+<input name="assertion_expected">
+
 <button type="submit">Create Test Case</button>
 
 </form>
